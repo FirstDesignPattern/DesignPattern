@@ -17,3 +17,81 @@
   결제 방식 추가 시 기존 코드 수정 없이 확장 가능
 
 → **결제 로직의 변경을 전략 객체로 캡슐화하여, 컨텍스트(결제 서비스)는 변경에 영향을 받지 않도록 설계**
+
+---
+
+### 클래스 구조 및 실행 흐름
+
+#### 클래스 다이어그램
+```mermaid
+classDiagram
+    class PaymentRequest {
+        -String paymentType
+        -int amount
+        +getPaymentType()
+        +getAmount()
+    }
+    
+    class PaymentType {
+        <<enum>>
+        CARD
+        KAKAO
+        TOSS
+    }
+    
+    class PaymentStrategy {
+        <<interface>>
+        +pay(PaymentRequest)
+        +supports() PaymentType
+    }
+    
+    class CardPaymentStrategy {
+        +pay(PaymentRequest)
+        +supports() PaymentType
+    }
+    
+    class KakaoPayPaymentStrategy {
+        +pay(PaymentRequest)
+        +supports() PaymentType
+    }
+    
+    class TossPayPaymentStrategy {
+        +pay(PaymentRequest)
+        +supports() PaymentType
+    }
+    
+    class PaymentStrategyRegistry {
+        -Map~PaymentType, PaymentStrategy~
+        +register(PaymentType, PaymentStrategy)
+        +get(PaymentType) PaymentStrategy
+    }
+    
+    class PaymentService {
+        -PaymentStrategyRegistry registry
+        +pay(PaymentRequest)
+    }
+    
+    PaymentService --> PaymentStrategyRegistry
+    PaymentStrategyRegistry --> PaymentStrategy
+    CardPaymentStrategy --|> PaymentStrategy
+    KakaoPayPaymentStrategy --|> PaymentStrategy
+    TossPayPaymentStrategy --|> PaymentStrategy
+    PaymentRequest --> PaymentType
+    PaymentService --> PaymentRequest
+```
+
+#### 실행 흐름
+```mermaid
+sequenceDiagram
+    participant Client
+    participant PaymentService
+    participant PaymentStrategyRegistry
+    participant PaymentStrategy as PaymentStrategy<br/>(구현체)
+    
+    Client->>PaymentService: pay(PaymentRequest)
+    PaymentService->>PaymentStrategyRegistry: get(paymentType)
+    PaymentStrategyRegistry-->>PaymentService: PaymentStrategy 반환
+    PaymentService->>PaymentStrategy: pay(request)
+    PaymentStrategy-->>Client: 결제 처리 완료
+```
+
