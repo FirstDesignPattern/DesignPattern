@@ -21,13 +21,25 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+replay_pid*
+
+# Java profiling
+*.hprof
 
 # IDE
+# IntelliJ IDEA
 .idea/
-.vscode/
+.idea_modules/
 *.iml
 *.iws
 *.ipr
+out/
+*.log
+
+# VS Code
+.vscode/
+
+# Other editors
 *.swp
 *.swo
 *~
